@@ -126,9 +126,12 @@ export const login = async (req, res) => {
             email: user.email,
             profileImg: user.profile_img,
             coverImg: user.cover_img,
+            bio: user.bio,
+            link: user.link,
             followers: relations.followers,
             following: relations.following,
             likedPosts: relations.likedPosts,
+            created_at: user.created_at
         });
 
     } catch (error) {

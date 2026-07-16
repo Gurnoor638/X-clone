@@ -2,6 +2,7 @@ import express from "express";
 import authRoutes from "./routes/auth.route.js";
 import userRoutes from "./routes/user.route.js";
 import postRoutes from "./routes/post.route.js";
+import notificationRoutes from "./routes/notification.route.js";
 import pool from "./config/db.js";
 import cookieParser from "cookie-parser";
 import { v2 as cloudinary } from "cloudinary";
@@ -29,6 +30,7 @@ app.use(cookieParser());
 app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/post", postRoutes);
+app.use("/api/notifications", notificationRoutes);
 
 app.listen(PORT, () => {
     console.log(`server is running on port ${PORT}`);

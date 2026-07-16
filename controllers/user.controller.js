@@ -215,19 +215,19 @@ export const updateUser = async (req, res) => {
     if (currentPassword && newPassword) {
       const isMatch = await bcrypt.compare(currentPassword, user.password);
 
-    if (!isMatch) {
-        return res.status(400).json({ error: "Current password is incorrect" });
-    }
+      if (!isMatch) {
+          return res.status(400).json({ error: "Current password is incorrect" });
+      }
 
-    if (newPassword.length < 6) {
-        return res.status(400).json({
-            error: "Password must be at least 6 characters long",
-        });
-    }
+      if (newPassword.length < 6) {
+          return res.status(400).json({
+              error: "Password must be at least 6 characters long",
+          });
+      }
 
-    const salt = await bcrypt.genSalt(10);
-    hashedPassword = await bcrypt.hash(newPassword, salt);
-}
+      const salt = await bcrypt.genSalt(10);
+      hashedPassword = await bcrypt.hash(newPassword, salt);
+    }
 
     if (profile_img) {
       if (user.profile_img) {
