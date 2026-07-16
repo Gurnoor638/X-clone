@@ -26,7 +26,35 @@ export const getUserProfile = async (req, res) => {
       return res.status(404).json({ error: "User not found" });
     }
 
+    // Get followers
+    const followersResult = await pool.query(
+      `SELECT follower_id
+       FROM user_followers
+       WHERE following_id = $1`,
+      [user.id]
+    );
+
+    // Get following
+    const followingResult = await pool.query(
+      `SELECT following_id
+       FROM user_followers
+       WHERE follower_id = $1`,
+      [user.id]
+    );
+
+    const likedPostsResult = await pool.query(
+      `SELECT post_id
+       FROM post_likes
+       WHERE user_id = $1`,
+      [user.id]
+    );
+
+    user.likedPosts = likedPostsResult.rows.map(row => row.post_id);
+    user.followers = followersResult.rows.map(row => row.follower_id);
+    user.following = followingResult.rows.map(row => row.following_id);
+
     res.status(200).json(user);
+
   } catch (error) {
     console.log("Error in getUserProfile: ", error.message);
     res.status(500).json({ error: error.message });
@@ -240,7 +268,8 @@ export const updateUser = async (req, res) => {
                         profile_img, 
                         cover_img, 
                         bio, 
-                        link`,
+                        link,
+                        updated_at`,
                         [
         full_name ?? user.full_name,
         username ?? user.username,
@@ -253,8 +282,46 @@ export const updateUser = async (req, res) => {
         userId,
       ],
     );
+    
+    const updatedUserData = updatedUser.rows[0];
 
-    return res.status(200).json(updatedUser.rows[0]);
+      // Get followers
+      const followersResult = await pool.query(
+        `SELECT follower_id
+        FROM user_followers
+        WHERE following_id = $1`,
+        [userId]
+      );
+
+      // Get following
+      const followingResult = await pool.query(
+        `SELECT following_id
+        FROM user_followers
+        WHERE follower_id = $1`,
+        [userId]
+      );
+
+      // Get liked posts
+      const likedPostsResult = await pool.query(
+        `SELECT post_id
+        FROM post_likes
+        WHERE user_id = $1`,
+        [userId]
+      );
+
+      updatedUserData.followers = followersResult.rows.map(
+        row => row.follower_id
+      );
+
+      updatedUserData.following = followingResult.rows.map(
+        row => row.following_id
+      );
+
+      updatedUserData.likedPosts = likedPostsResult.rows.map(
+        row => row.post_id
+      );
+
+      return res.status(200).json(updatedUserData);
   } catch (error) {
     console.error("Error in updateUser:", error.message);
     res.status(500).json({ error: "Internal server error" });

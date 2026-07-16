@@ -2,6 +2,36 @@ import pool from "../config/db.js";
 import bcrypt from "bcryptjs";
 import { generateTokenAndSetCookie } from "../lib/utils/generateTokens.js";
 
+const getUserRelations = async (userId) => {
+  const [followersResult, followingResult, likedPostsResult] =
+    await Promise.all([
+      pool.query(
+        `SELECT follower_id
+         FROM user_followers
+         WHERE following_id = $1`,
+        [userId]
+      ),
+      pool.query(
+        `SELECT following_id
+         FROM user_followers
+         WHERE follower_id = $1`,
+        [userId]
+      ),
+      pool.query(
+        `SELECT post_id
+         FROM post_likes
+         WHERE user_id = $1`,
+        [userId]
+      ),
+    ]);
+
+  return {
+    followers: followersResult.rows.map(row => row.follower_id),
+    following: followingResult.rows.map(row => row.following_id),
+    likedPosts: likedPostsResult.rows.map(row => row.post_id),
+  };
+};
+
 export const signup = async (req, res) => {
     try {
         const {fullName, username, email, password} = req.body;
@@ -51,10 +81,13 @@ export const signup = async (req, res) => {
                 fullName: newUser.full_name,
                 username: newUser.username,
                 email: newUser.email,
-                followers: newUser.followers,
-                following: newUser.following,
                 profileImg: newUser.profile_img,
                 coverImg: newUser.cover_img,
+                bio: newUser.bio,
+                link: newUser.link,
+                followers: [],
+                following: [],
+                likedPosts: [],
             });
         } else{
             res.status(400).json({error: "Invalid user data"});
@@ -84,15 +117,18 @@ export const login = async (req, res) => {
 
         generateTokenAndSetCookie(user.id, res);
 
-        res.status(201).json({
+        const relations = await getUserRelations(user.id);
+
+        res.status(200).json({
             id: user.id,
             fullName: user.full_name,
             username: user.username,
             email: user.email,
-            followers: user.followers,
-            following: user.following,
             profileImg: user.profile_img,
             coverImg: user.cover_img,
+            followers: relations.followers,
+            following: relations.following,
+            likedPosts: relations.likedPosts,
         });
 
     } catch (error) {
@@ -108,8 +144,8 @@ export const logout = async (req, res) => {
             httpOnly: true,
             sameSite: "strict",
             secure: process.env.NODE_ENV !== "development"});
-		    res.status(200).json({ message: "Logged out successfully" 
-            });
+
+		return res.status(200).json({ message: "Logged out successfully" });
 
 	} catch (error) {
 		console.log("Error in logout controller", error.message);
@@ -140,6 +176,12 @@ export const getMe = async (req, res) => {
                 error: "User not found"
             });
         }
+
+        const relations = await getUserRelations(user.id);
+
+        user.followers = relations.followers;
+        user.following = relations.following;
+        user.likedPosts = relations.likedPosts;
 
         res.status(200).json(user);
 
