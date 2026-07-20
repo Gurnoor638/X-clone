@@ -36,6 +36,12 @@ export const signup = async (req, res) => {
     try {
         const {fullName, username, email, password} = req.body;
 
+        if (!fullName || !username || !email || !password) {
+            return res.status(400).json({
+                error: "Please fill all the fields",
+            });
+        }
+
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if(!emailRegex.test(email)){
             return res.status(400).json({error: "Invalid email format"});
@@ -102,6 +108,13 @@ export const signup = async (req, res) => {
 export const login = async (req, res) => {
     try {
         const {username, password} = req.body;
+
+        if (!username || !password) {
+            return res.status(400).json({
+                error: "Please fill all the fields",
+            });
+        }
+
         const result = await pool.query(
             `SELECT * FROM users WHERE username = $1`,
             [username]
