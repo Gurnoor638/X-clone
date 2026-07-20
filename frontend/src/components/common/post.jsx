@@ -13,8 +13,8 @@ import LoadingSpinner from "./LoadingSpinner";
 
 const Post = ({ post }) => {
 	const [comment, setComment] = useState("");
-	const { data: authUser } = useQuery({queryKey: ["authUser"]});
 	const queryClient = useQueryClient();
+	const authUser = queryClient.getQueryData(["authUser"]);
 
 	const { mutate: deletePost, isPending } = useMutation({
 		mutationFn: async () =>{
@@ -61,7 +61,7 @@ const Post = ({ post }) => {
 			<div className='flex gap-2 items-start p-4 border-b border-gray-700'>
 				<div className='avatar'>
 					<Link to={`/profile/${postOwner.username}`} className='w-8 rounded-full overflow-hidden'>
-						<img src={postOwner.profileImg || "/avatar-placeholder.png"} />
+						<img src={postOwner.profile_img || "/avatar-placeholder.png"} />
 					</Link>
 				</div>
 				<div className='flex flex-col flex-1'>
@@ -87,9 +87,9 @@ const Post = ({ post }) => {
 					</div>
 					<div className='flex flex-col gap-3 overflow-hidden'>
 						<span>{post.text}</span>
-						{post.img && (
+						{post.image && (
 							<img
-								src={post.img}
+								src={post.image}
 								className='h-80 object-contain rounded-lg border border-gray-700'
 								alt=''
 							/>
@@ -121,7 +121,7 @@ const Post = ({ post }) => {
 												<div className='avatar'>
 													<div className='w-8 rounded-full'>
 														<img
-															src={comment.user.profileImg || "/avatar-placeholder.png"}
+															src={comment.user.profile_img || "/avatar-placeholder.png"}
 														/>
 													</div>
 												</div>
