@@ -24,7 +24,7 @@ const RightPanel = () => {
 							<Link
 								to={`/profile/${user.username}`}
 								className='flex items-center justify-between gap-4'
-								key={user._id}
+								key={user.id}
 							>
 								<div className='flex gap-2 items-center'>
 									<div className='avatar'>
