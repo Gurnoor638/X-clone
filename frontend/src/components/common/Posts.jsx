@@ -30,14 +30,14 @@ const Posts = ({ feedType }) => {
 				return data;
 
 			} catch (error) {
-				throw new Error(error);
+				throw error;
 			}
 		}
 	});
 
-	useEffect(() => {
-		refetch();
-	}, [feedType, refetch]);
+	// useEffect(() => {
+	// 	refetch();
+	// }, [feedType, refetch]);
 
 	return (
 		<>
@@ -52,7 +52,7 @@ const Posts = ({ feedType }) => {
 			{!isLoading && !isRefetching && posts && (
 				<div>
 					{posts.map((post) => (
-						<Post key={post.id} post={post} />
+						<Post key={post.id} post={post} feedType={feedType}/>
 					))}
 				</div>
 			)}

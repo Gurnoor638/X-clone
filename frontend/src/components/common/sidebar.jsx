@@ -24,7 +24,7 @@ const Sidebar = () => {
 			if(!res.ok) throw new Error(data.error || "Something went wrong");
 
 		} catch (error) {
-			throw new Error(error);
+			throw error;
 		}
 	},
 	onSuccess: () => {

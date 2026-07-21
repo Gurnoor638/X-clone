@@ -32,7 +32,7 @@ function App() {
 				return data;
 
 			} catch (error) {
-				throw new Error;
+				throw error;
 			}
 		},
 		retry: false,
