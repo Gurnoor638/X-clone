@@ -23,7 +23,7 @@ export const getNotifications = async(req, res) => {
         const notifications = notificationResult.rows.map(notification => ({
             id: notification.id,
             type: notification.type,
-            is_read: notification.is_read,
+            read: notification.is_read,
             created_at: notification.created_at,
 
             from: {
