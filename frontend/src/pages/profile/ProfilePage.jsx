@@ -1,47 +1,52 @@
 import { useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 
 import Posts from "../../components/common/Posts.jsx";
 import ProfileHeaderSkeleton from "../../components/skeletons/ProfileHeaderSkeleton.jsx";
 import EditProfileModal from "./EditProfileModal.jsx";
 
-import { POSTS } from "../../utils/db/dummy";
-
 import { FaArrowLeft } from "react-icons/fa6";
 import { IoCalendarOutline } from "react-icons/io5";
 import { FaLink } from "react-icons/fa";
 import { MdEdit } from "react-icons/md";
+import { useQuery } from "@tanstack/react-query";
+import { formatMemberSinceDate } from "../../utils/date/index.js";
 
 const ProfilePage = () => {
 	const [coverImg, setCoverImg] = useState(null);
 	const [profileImg, setProfileImg] = useState(null);
 	const [feedType, setFeedType] = useState("posts");
 
-	const coverImgRef = useRef(null);
-	const profileImgRef = useRef(null);
+	const cover_imgRef = useRef(null);
+	const profile_imgRef = useRef(null);
 
-	const isLoading = false;
 	const isMyProfile = true;
 
-	const user = {
-		_id: "1",
-		fullName: "John Doe",
-		username: "johndoe",
-		profileImg: "/avatars/boy2.png",
-		coverImg: "/cover.png",
-		bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-		link: "https://youtube.com/@asaprogrammer_",
-		following: ["1", "2", "3"],
-		followers: ["1", "2", "3"],
-	};
-
+	const { username } = useParams();
+	
+	const { data: user, isLoading } = useQuery({
+		queryKey: ["userProfile", username],
+		queryFn: async () => {
+			try {
+				const res = await fetch(`/api/user/profile/${username}`);
+				const data = await res.json();
+				
+				if(!res.ok) throw new Error(data.error || "Something went wrong");
+				return data;
+			} catch (error) {
+				throw error;
+			}
+		}
+	});
+	
+	const memberSinceDate = formatMemberSinceDate(user?.created_at);
 	const handleImgChange = (e, state) => {
 		const file = e.target.files[0];
 		if (file) {
 			const reader = new FileReader();
 			reader.onload = () => {
-				state === "coverImg" && setCoverImg(reader.result);
-				state === "profileImg" && setProfileImg(reader.result);
+				state === "cover_img" && setCoverImg(reader.result);
+				state === "profile_img" && setProfileImg(reader.result);
 			};
 			reader.readAsDataURL(file);
 		}
@@ -61,8 +66,8 @@ const ProfilePage = () => {
 									<FaArrowLeft className='w-4 h-4' />
 								</Link>
 								<div className='flex flex-col'>
-									<p className='font-bold text-lg'>{user?.fullName}</p>
-									<span className='text-sm text-slate-500'>{POSTS?.length} posts</span>
+									<p className='font-bold text-lg'>{user?.full_name}</p>
+									<span className='text-sm text-slate-500'>{Posts?.length} posts</span>
 								</div>
 							</div>
 							{/* COVER IMG */}
@@ -75,7 +80,7 @@ const ProfilePage = () => {
 								{isMyProfile && (
 									<div
 										className='absolute top-2 right-2 rounded-full p-2 bg-gray-800 bg-opacity-75 cursor-pointer opacity-0 group-hover/cover:opacity-100 transition duration-200'
-										onClick={() => coverImgRef.current.click()}
+										onClick={() => cover_imgRef.current.click()}
 									>
 										<MdEdit className='w-5 h-5 text-white' />
 									</div>
@@ -85,15 +90,15 @@ const ProfilePage = () => {
 									accept="image/*"
 									type='file'
 									hidden
-									ref={coverImgRef}
-									onChange={(e) => handleImgChange(e, "coverImg")}
+									ref={cover_imgRef}
+									onChange={(e) => handleImgChange(e, "cover_img")}
 									/>
 								<input
 									accept="image/*"
 									type='file'
 									hidden
-									ref={profileImgRef}
-									onChange={(e) => handleImgChange(e, "profileImg")}
+									ref={profile_imgRef}
+									onChange={(e) => handleImgChange(e, "profile_img")}
 								/>
 								{/* USER AVATAR */}
 								<div className='avatar absolute -bottom-16 left-4'>
@@ -103,7 +108,7 @@ const ProfilePage = () => {
 											{isMyProfile && (
 												<MdEdit
 													className='w-4 h-4 text-white'
-													onClick={() => profileImgRef.current.click()}
+													onClick={() => profile_imgRef.current.click()}
 												/>
 											)}
 										</div>
@@ -132,7 +137,7 @@ const ProfilePage = () => {
 
 							<div className='flex flex-col gap-4 mt-14 px-4'>
 								<div className='flex flex-col'>
-									<span className='font-bold text-lg'>{user?.fullName}</span>
+									<span className='font-bold text-lg'>{user?.full_name}</span>
 									<span className='text-sm text-slate-500'>@{user?.username}</span>
 									<span className='text-sm my-1'>{user?.bio}</span>
 								</div>
@@ -155,7 +160,7 @@ const ProfilePage = () => {
 									)}
 									<div className='flex gap-2 items-center'>
 										<IoCalendarOutline className='w-4 h-4 text-slate-500' />
-										<span className='text-sm text-slate-500'>Joined July 2021</span>
+										<span className='text-sm text-slate-500'>{memberSinceDate}</span>
 									</div>
 								</div>
 								<div className='flex gap-2'>
@@ -192,7 +197,7 @@ const ProfilePage = () => {
 						</>
 					)}
 
-					<Posts />
+					<Posts feedType={feedType} username={username} userId={user?.id}/>
 				</div>
 			</div>
 		</>
