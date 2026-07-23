@@ -12,7 +12,7 @@ import LoadingSpinner from "./LoadingSpinner";
 import { formatPostDate } from "../../utils/date";
 
 
-const Post = ({ post, feedType }) => {
+const Post = ({ post, feedType, username }) => {
 	const [comment, setComment] = useState("");
 	const queryClient = useQueryClient();
 	const authUser = queryClient.getQueryData(["authUser"]);
@@ -60,7 +60,7 @@ const Post = ({ post, feedType }) => {
 			// queryClient.invalidateQueries({ queryKey: ["posts"] });
 
 			// instead, update the cache directly for that post
-			queryClient.setQueryData(["posts", feedType], (oldData) => {
+			queryClient.setQueryData(["posts", feedType, username], (oldData) => {
 				return oldData.map((p) => {
 					if (p.id === post.id) {
 						return { ...p, likes: updatedLikes };

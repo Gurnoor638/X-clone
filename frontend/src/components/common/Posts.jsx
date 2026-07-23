@@ -56,7 +56,7 @@ const Posts = ({ feedType, username, userId }) => {
 			{!isLoading && !isRefetching && posts && (
 				<div>
 					{posts.map((post) => (
-						<Post key={post.id} post={post} feedType={feedType}/>
+						<Post key={post.id} post={post} feedType={feedType} username={username}/>
 					))}
 				</div>
 			)}
