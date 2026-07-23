@@ -124,10 +124,16 @@ const Post = ({ post, feedType }) => {
 	return (
 		<>
 			<div className='flex gap-2 items-start p-4 border-b border-gray-700'>
-				<div className='avatar'>
-					<Link to={`/profile/${postOwner.username}`} className='w-8 rounded-full overflow-hidden'>
-						<img src={postOwner.profile_img || "/avatar-placeholder.png"} />
-					</Link>
+				<div className="avatar">
+					<div className="w-8 rounded-full">
+					<Link to={`/profile/${postOwner.username}`}>
+						<img
+							src={postOwner.profile_img || "/avatar-placeholder.png"}
+							className="w-full h-full object-cover"
+							alt=""
+						/>
+						</Link>
+					</div>
 				</div>
 				<div className='flex flex-col flex-1'>
 					<div className='flex gap-2 items-center'>

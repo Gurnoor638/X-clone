@@ -271,17 +271,17 @@ export const updateUser = async (req, res) => {
                         link,
                         updated_at`,
                         [
-        full_name ?? user.full_name,
-        username ?? user.username,
-        email ?? user.email,
-        hashedPassword,
-        profile_img ?? user.profile_img,
-        cover_img ?? user.cover_img,
-        bio ?? user.bio,
-        link ?? user.link,
-        userId,
-      ],
-    );
+                          full_name?.trim() ?? user.full_name,
+                          username?.trim() ?? user.username,
+                          email?.trim() ?? user.email,
+                          hashedPassword,
+                          profile_img ?? user.profile_img,
+                          cover_img ?? user.cover_img,
+                          bio?.trim() ?? user.bio,
+                          link?.trim() ?? user.link,
+                          userId
+                              ],
+      );
     
     const updatedUserData = updatedUser.rows[0];
 
